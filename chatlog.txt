@@ -1,0 +1,8 @@
+/127.0.0.1 connected
+[Michael] Entered
+[Michael] /bot stock JPM:
+[Michael] /bot stock TSLA
+[Michael] /bot stock JPMC
+[Michael] /bot stock AMD
+[Michael] /bot stock VOO
+[Michael] /bot stock JPM.us

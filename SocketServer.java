@@ -6,12 +6,13 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.io.FileWriter;
 
 public class SocketServer {
     ServerSocket server;
     Socket sk;
     InetAddress addr;
-    
+    ChatBot chatBot = new ChatBot();
     ArrayList<ServerThread> list = new ArrayList<ServerThread>();
 
     public SocketServer() {
@@ -25,7 +26,7 @@ public class SocketServer {
             while(true) {
                 sk = server.accept();
                 System.out.println(sk.getInetAddress() + " connect");
-
+                logMessage(sk.getInetAddress() + " connected");
                 //Thread connected clients to ArrayList
                 ServerThread st = new ServerThread(this);
                 addThread(st);
@@ -48,6 +49,26 @@ public class SocketServer {
         for(ServerThread st : list){
             st.pw.println(message);
         }
+    }
+
+    public void logMessage(String message) {
+        try {
+            PrintWriter writer = new PrintWriter(new FileWriter("chatlog.txt", true));
+            writer.println(message);
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Logging failed.");
+        }
+    }
+
+    public String getUserList() {
+        String users = "Connected Users:\n";
+        for (ServerThread st : list) {
+            if (st.name != null) {
+                users += st.name + "\n";
+            }
+        }
+        return users;
     }
 
     public static void main(String[] args) {
@@ -74,18 +95,24 @@ class ServerThread extends Thread {
             pw = new PrintWriter(server.sk.getOutputStream(), true);
             name = br.readLine();
             server.broadCast("**["+name+"] Entered**");
+            server.logMessage("[" + name + "] Entered");
 
             String data;
             while((data = br.readLine()) != null ){
-                if(data == "/list"){
-                    pw.println("a");
+                server.logMessage("[" + name + "] " + data);
+                if (data.equals("/list")) {
+                    pw.println(server.getUserList());
+                } else if (data.toLowerCase().startsWith("/bot")) {
+                    pw.println(server.chatBot.handleCommand(data));
+                } else {
+                    server.broadCast("[" + name + "] " + data);
                 }
-                server.broadCast("["+name+"] "+ data);
             }
         } catch (Exception e) {
             //Remove the current thread from the ArrayList.
             server.removeThread(this);
             server.broadCast("**["+name+"] Left**");
+            server.logMessage("[" + name + "] Left");
             System.out.println(server.sk.getInetAddress()+" - ["+name+"] Exit");
             System.out.println(e + "---->");
         }
