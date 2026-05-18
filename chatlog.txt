@@ -6,3 +6,4 @@
 [Michael] /bot stock AMD
 [Michael] /bot stock VOO
 [Michael] /bot stock JPM.us
+[Michael] /bot stock COST

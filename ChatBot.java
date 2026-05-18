@@ -34,31 +34,22 @@ public class ChatBot {
             if (ticker == null || ticker.isEmpty()) {
                 return "[Bot] Please enter a ticker. Example: /bot stock AAPL";
             }
-
             ticker = ticker.toLowerCase();
-
             String stooqSymbol = ticker + ".us";
-
             String urlString =
                     "https://stooq.com/q/l/?s="
                             + stooqSymbol
                             + "&f=sd2t2ohlcv&h&e=csv";
-
             String response = sendGetRequest(urlString);
-
             String[] lines = response.split("\n");
-
             if (lines.length < 2) {
                 return "[Bot] No stock data found for " + ticker.toUpperCase();
             }
-
             String[] data = lines[1].split(",");
-
             if (data.length < 8 || data[3].equals("N/D")) {
                 return "[Bot] Invalid ticker or unsupported market: "
                         + ticker.toUpperCase();
             }
-
             String symbol = data[0];
             String date = data[1];
             String time = data[2];
@@ -67,7 +58,6 @@ public class ChatBot {
             String low = data[5];
             String close = data[6];
             String volume = data[7];
-
             return "[Bot] Stock Data for " + ticker.toUpperCase() + "\n"
                     + "Symbol: " + symbol + "\n"
                     + "Date: " + date + "\n"
@@ -77,7 +67,6 @@ public class ChatBot {
                     + "Low: $" + low + "\n"
                     + "Close: $" + close + "\n"
                     + "Volume: " + volume;
-
         } catch (Exception e) {
             return "[Bot] Error getting stock data.";
         }
@@ -85,25 +74,16 @@ public class ChatBot {
 
     private String sendGetRequest(String urlString) throws Exception {
         URL url = new URL(urlString);
-
         HttpURLConnection connection =
                 (HttpURLConnection) url.openConnection();
-
         connection.setRequestMethod("GET");
-
-        BufferedReader reader =
-                new BufferedReader(
-                        new InputStreamReader(connection.getInputStream()));
-
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         StringBuilder response = new StringBuilder();
         String line;
-
         while ((line = reader.readLine()) != null) {
             response.append(line).append("\n");
         }
-
         reader.close();
-
         return response.toString();
     }
 }
